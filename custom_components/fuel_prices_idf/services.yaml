@@ -1,0 +1,17 @@
+backfill_statistics:
+  name: Backfill historical statistics
+  description: >-
+    Download the yearly open-data archive and import daily average SP95/SP98
+    prices for Île-de-France as long-term statistics. Safe to re-run (upserts).
+  fields:
+    year:
+      name: Year
+      description: Year to import (archives exist from 2007 onwards). Defaults to the current year.
+      required: false
+      example: 2026
+      default: 2026
+      selector:
+        number:
+          min: 2007
+          max: 2100
+          mode: box

@@ -1,0 +1,38 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Fuel Prices Île-de-France",
+        "description": "Set your home location and the search radius used for the cheapest-station sensors.",
+        "data": {
+          "location": "Home location",
+          "radius_km": "Search radius (km)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This location is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Fuel Prices Île-de-France options",
+        "data": {
+          "location": "Home location",
+          "radius_km": "Search radius (km)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "avg_sp95": { "name": "Average SP95 (Île-de-France)" },
+      "avg_sp98": { "name": "Average SP98 (Île-de-France)" },
+      "nearest_sp95": { "name": "Nearest SP95" },
+      "nearest_sp98": { "name": "Nearest SP98" },
+      "cheapest_sp95": { "name": "Cheapest SP95 (within radius)" },
+      "cheapest_sp98": { "name": "Cheapest SP98 (within radius)" }
+    }
+  }
+}
