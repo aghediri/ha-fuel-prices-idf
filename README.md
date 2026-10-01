@@ -90,8 +90,8 @@ entities:
 > backfills the current year's **daily SP95/SP98 averages** from the open-data
 > archive (see *Historical backfill* below), so the `statistics-graph` card has
 > months of history immediately. To chart the backfilled series directly, point
-> the card at the external statistics ids `fuel_prices_idf:avg_sp95` and
-> `fuel_prices_idf:avg_sp98`.
+> the card at the external statistics ids `sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france` and
+> `sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france`.
 
 Or a quick rolling view:
 ```yaml
@@ -195,8 +195,8 @@ parsed from the official yearly open-data archive
 once** on first setup (in the background — the live sensors are available immediately).
 
 The data is stored as external statistics under:
-- `fuel_prices_idf:avg_sp95`
-- `fuel_prices_idf:avg_sp98`
+- `sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france`
+- `sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france`
 
 Chart them in a `statistics-graph` card (period `day`, stat types mean/min/max).
 

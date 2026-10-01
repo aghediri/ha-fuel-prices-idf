@@ -7,7 +7,7 @@ import voluptuous as vol
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
-import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers import entity_registry as er
 
 from .const import (
     CONF_LATITUDE,
@@ -26,6 +26,22 @@ PLATFORMS: list[Platform] = [Platform.SENSOR]
 SERVICE_BACKFILL = "backfill_statistics"
 ATTR_YEAR = "year"
 _BACKFILL_DONE = "backfill_done"
+
+
+def _avg_entity_ids(hass: HomeAssistant, entry: ConfigEntry) -> dict[str, str]:
+    """Resolve the live avg SP95/SP98 sensor entity_ids from the registry.
+
+    Backfilled statistics are imported INTO these entity_ids so history and
+    live data form one continuous series. Keyed by fuel: {"sp95": ..., "sp98": ...}.
+    """
+    reg = er.async_get(hass)
+    out: dict[str, str] = {}
+    for fuel in ("sp95", "sp98"):
+        unique_id = f"{entry.entry_id}_avg_{fuel}"
+        ent = reg.async_get_entity_id("sensor", DOMAIN, unique_id)
+        if ent:
+            out[fuel] = ent
+    return out
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -50,7 +66,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         async def _initial_backfill() -> None:
             try:
-                await async_backfill_statistics(hass, datetime.now().year)
+                entity_ids = _avg_entity_ids(hass, entry)
+                if not entity_ids:
+                    return
+                await async_backfill_statistics(
+                    hass, datetime.now().year, entity_ids
+                )
                 hass.config_entries.async_update_entry(
                     entry, data={**entry.data, _BACKFILL_DONE: True}
                 )
@@ -72,7 +93,11 @@ def _async_register_services(hass: HomeAssistant) -> None:
 
     async def _handle_backfill(call: ServiceCall) -> None:
         year = call.data.get(ATTR_YEAR, datetime.now().year)
-        await async_backfill_statistics(hass, int(year))
+        # Backfill every configured entry's avg sensors.
+        for entry in hass.config_entries.async_entries(DOMAIN):
+            entity_ids = _avg_entity_ids(hass, entry)
+            if entity_ids:
+                await async_backfill_statistics(hass, int(year), entity_ids)
 
     hass.services.async_register(
         DOMAIN,

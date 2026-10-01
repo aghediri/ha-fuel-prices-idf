@@ -2,13 +2,13 @@
 
 Parses the yearly open-data archive (ZIP of a single large XML) from
 donnees.roulez-eco.fr, computes the daily mean SP95 and SP98 price across all
-Île-de-France stations, and injects the series as Home Assistant *external
-statistics*. This gives the `statistics-graph` Lovelace card months of history
-immediately after install, instead of waiting for the sensors to accumulate it.
+Île-de-France stations, and imports the series INTO the average sensors' own
+long-term statistics (statistic_id = the sensor entity_id, source "recorder").
+This gives the `statistics-graph` Lovelace card months of history immediately
+after install as ONE continuous series that the live sensors keep extending.
 
-External statistics are keyed under the domain (e.g. ``fuel_prices_idf:avg_sp95``)
-and are independent of the live sensor entities, so re-running is idempotent
-(``async_add_external_statistics`` upserts by start time).
+``async_import_statistics`` upserts by start time, so re-running is idempotent
+and the backfilled days seamlessly precede the live-recorded ones.
 """
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ from homeassistant.components.recorder.models import (
     StatisticMetaData,
 )
 from homeassistant.components.recorder.statistics import (
-    async_add_external_statistics,
+    async_import_statistics,
 )
 from homeassistant.const import UnitOfVolume  # noqa: F401  (kept for reference)
 from homeassistant.core import HomeAssistant
@@ -38,15 +38,13 @@ _LOGGER = logging.getLogger(__name__)
 ARCHIVE_URL = "https://donnees.roulez-eco.fr/opendata/annee/{year}"
 CURRENCY_EUR_PER_L = "€/L"
 
-# External statistic ids (must be "<domain>:<object_id>").
-STAT_IDS = {
-    "sp95": f"{DOMAIN}:avg_sp95",
-    "sp98": f"{DOMAIN}:avg_sp98",
-}
 
-
-async def async_backfill_statistics(hass: HomeAssistant, year: int) -> dict[str, int]:
-    """Download, parse and import one year's daily averages. Returns counts."""
+async def async_backfill_statistics(
+    hass: HomeAssistant, year: int, entity_ids: dict[str, str]
+) -> dict[str, int]:
+    """Download, parse and import one year's daily averages into the sensor
+    statistics. ``entity_ids`` maps {"sp95": entity_id, "sp98": entity_id}.
+    Returns per-fuel count of imported daily points."""
     session = async_get_clientsession(hass)
     url = ARCHIVE_URL.format(year=year)
     _LOGGER.info("Fuel Prices IDF: downloading yearly archive %s", url)
@@ -61,12 +59,14 @@ async def async_backfill_statistics(hass: HomeAssistant, year: int) -> dict[str,
 
     counts: dict[str, int] = {}
     for fuel, series in daily.items():
-        stat_id = STAT_IDS[fuel]
+        stat_id = entity_ids.get(fuel)
+        if not stat_id:
+            continue
         metadata = StatisticMetaData(
             has_mean=True,
             has_sum=False,
-            name=f"Average {fuel.upper()} (Île-de-France)",
-            source=DOMAIN,
+            name=None,
+            source="recorder",
             statistic_id=stat_id,
             unit_of_measurement=CURRENCY_EUR_PER_L,
         )
@@ -86,7 +86,7 @@ async def async_backfill_statistics(hass: HomeAssistant, year: int) -> dict[str,
                 )
             )
         if stats:
-            async_add_external_statistics(hass, metadata, stats)
+            async_import_statistics(hass, metadata, stats)
             counts[fuel] = len(stats)
             _LOGGER.info(
                 "Fuel Prices IDF: imported %d daily points for %s", len(stats), fuel

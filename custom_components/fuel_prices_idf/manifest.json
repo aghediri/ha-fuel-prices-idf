@@ -1,12 +1,14 @@
 {
   "domain": "fuel_prices_idf",
-  "name": "Fuel Prices Île-de-France",
-  "codeowners": ["@aghediri"],
+  "name": "Fuel Prices \u00cele-de-France",
+  "codeowners": [
+    "@aghediri"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/aghediri/ha-fuel-prices-idf",
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/aghediri/ha-fuel-prices-idf/issues",
   "requirements": [],
-  "version": "1.1.0"
+  "version": "1.1.1"
 }
