@@ -1,0 +1,108 @@
+# Fuel Prices Île-de-France — ready-made dashboard view.
+#
+# Apply:
+#   1. Settings → Dashboards → + Add Dashboard (new dashboard from scratch), OR
+#      edit an existing dashboard.
+#   2. Open it → ⋮ → Edit → ⋮ → Raw configuration editor.
+#   3. Paste this block under `views:` → Save.
+#
+# Entity IDs assume the default config-entry name "Fuel Prices Île-de-France"
+# (sensor.fuel_prices_ile_de_france_*). Adjust if yours differ
+# (Developer Tools → States → filter "sp9").
+#
+# The hero `custom:fuel-prices-idf-card` is OPTIONAL — it needs the card from
+# www/fuel-prices-idf-card.js installed (see README). Everything else uses
+# built-in cards and works with no extra dependencies.
+
+title: Carburants IDF
+path: carburants-idf
+icon: mdi:gas-station
+cards:
+  # --- OPTIONAL custom hero card (remove this block if the card isn't installed) ---
+  - type: custom:fuel-prices-idf-card
+    title: Carburants — Île-de-France
+
+  # --- Regional average gauges ---
+  - type: horizontal-stack
+    cards:
+      - type: gauge
+        entity: sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france
+        name: SP95 moyen IDF
+        unit: "€/L"
+        min: 1.5
+        max: 2.5
+        needle: true
+        severity:
+          green: 1.5
+          yellow: 1.9
+          red: 2.2
+      - type: gauge
+        entity: sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france
+        name: SP98 moyen IDF
+        unit: "€/L"
+        min: 1.5
+        max: 2.5
+        needle: true
+        severity:
+          green: 1.5
+          yellow: 1.9
+          red: 2.2
+
+  # --- Daily average trend (long-term statistics / backfill) ---
+  - type: statistics-graph
+    title: Évolution du prix moyen journalier
+    period: day
+    days_to_show: 120
+    stat_types:
+      - mean
+      - min
+      - max
+    entities:
+      - sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france
+      - sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france
+
+  # --- Nearest & cheapest stations ---
+  - type: entities
+    title: Stations
+    show_header_toggle: false
+    entities:
+      - type: section
+        label: La plus proche
+      - entity: sensor.fuel_prices_ile_de_france_nearest_sp95
+        name: SP95 — la plus proche
+        secondary_info: last-changed
+      - entity: sensor.fuel_prices_ile_de_france_nearest_sp98
+        name: SP98 — la plus proche
+      - type: section
+        label: La moins chère (dans le rayon)
+      - entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+        name: SP95 — la moins chère
+      - entity: sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius
+        name: SP98 — la moins chère
+
+  # --- Detail: cheapest SP95 (distance / address) ---
+  - type: entities
+    title: Détails — SP95 le moins cher
+    entities:
+      - type: attribute
+        entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+        attribute: distance_km
+        name: Distance
+        suffix: " km"
+      - type: attribute
+        entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+        attribute: city
+        name: Ville
+      - type: attribute
+        entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+        attribute: address
+        name: Adresse
+
+  # --- Map of nearest & cheapest ---
+  - type: map
+    title: Carte des stations
+    default_zoom: 11
+    entities:
+      - entity: sensor.fuel_prices_ile_de_france_nearest_sp95
+      - entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+      - entity: sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius

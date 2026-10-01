@@ -1,3 +1,5 @@
+<p align="center"><img src="logo.png" width="140" alt="Fuel Prices Île-de-France"></p>
+
 # Fuel Prices Île-de-France — Home Assistant integration
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
@@ -15,12 +17,12 @@ This integration polls it every 30 minutes.
 
 | Entity | Description | State | Key attributes |
 |---|---|---|---|
-| `sensor.average_sp95_ile_de_france` | Mean SP95 price across all open IDF stations | €/L | `station_count` |
-| `sensor.average_sp98_ile_de_france` | Mean SP98 price across all open IDF stations | €/L | `station_count` |
-| `sensor.nearest_sp95` | Price at the nearest station selling SP95 | €/L | `distance_km`, `city`, `address`, `postal_code`, `latitude`, `longitude`, `last_price_update` |
-| `sensor.nearest_sp98` | Price at the nearest station selling SP98 | €/L | *(same as above)* |
-| `sensor.cheapest_sp95_within_radius` | Lowest SP95 price within your radius | €/L | *(same as above)* |
-| `sensor.cheapest_sp98_within_radius` | Lowest SP98 price within your radius | €/L | *(same as above)* |
+| `sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france` | Mean SP95 price across all open IDF stations | €/L | `station_count` |
+| `sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france` | Mean SP98 price across all open IDF stations | €/L | `station_count` |
+| `sensor.fuel_prices_ile_de_france_nearest_sp95` | Price at the nearest station selling SP95 | €/L | `distance_km`, `city`, `address`, `postal_code`, `latitude`, `longitude`, `last_price_update` |
+| `sensor.fuel_prices_ile_de_france_nearest_sp98` | Price at the nearest station selling SP98 | €/L | *(same as above)* |
+| `sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius` | Lowest SP95 price within your radius | €/L | *(same as above)* |
+| `sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius` | Lowest SP98 price within your radius | €/L | *(same as above)* |
 
 Prices are in **euros per litre** with 3-decimal precision. Each station sensor carries
 `latitude`/`longitude` so you can drop it straight onto a `map` card.
@@ -54,17 +56,17 @@ radius later via **Settings → Devices & Services → Fuel Prices Île-de-Franc
 type: entities
 title: Fuel prices — Île-de-France
 entities:
-  - entity: sensor.average_sp95_ile_de_france
-  - entity: sensor.average_sp98_ile_de_france
+  - entity: sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france
+  - entity: sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france
   - type: section
     label: Nearest to home
-  - entity: sensor.nearest_sp95
+  - entity: sensor.fuel_prices_ile_de_france_nearest_sp95
     secondary_info: last-changed
-  - entity: sensor.nearest_sp98
+  - entity: sensor.fuel_prices_ile_de_france_nearest_sp98
   - type: section
     label: Cheapest within radius
-  - entity: sensor.cheapest_sp95_within_radius
-  - entity: sensor.cheapest_sp98_within_radius
+  - entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+  - entity: sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius
 ```
 
 ### Daily average trend (history / statistics)
@@ -79,8 +81,8 @@ stat_types:
   - min
   - max
 entities:
-  - sensor.average_sp95_ile_de_france
-  - sensor.average_sp98_ile_de_france
+  - sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france
+  - sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france
 ```
 
 > **Tip — populated on day one.** On first setup the integration automatically
@@ -95,8 +97,8 @@ Or a quick rolling view:
 type: history-graph
 hours_to_show: 720
 entities:
-  - sensor.average_sp95_ile_de_france
-  - sensor.average_sp98_ile_de_france
+  - sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france
+  - sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france
 ```
 
 ### Cheapest station on a map
@@ -104,8 +106,8 @@ entities:
 type: map
 title: Cheapest SP95 nearby
 entities:
-  - entity: sensor.cheapest_sp95_within_radius
-  - entity: sensor.nearest_sp95
+  - entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+  - entity: sensor.fuel_prices_ile_de_france_nearest_sp95
 ```
 
 ### "Should I fill up?" template (optional)
@@ -115,9 +117,20 @@ template:
   - binary_sensor:
       - name: "SP95 cheaper nearby"
         state: >
-          {{ states('sensor.nearest_sp95') | float(0)
-            < states('sensor.average_sp95_ile_de_france') | float(0) }}
+          {{ states('sensor.fuel_prices_ile_de_france_nearest_sp95') | float(0)
+            < states('sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france') | float(0) }}
 ```
+
+## Dashboard (optional)
+
+A ready-made view is included: [`dashboard.yaml`](dashboard.yaml) — gauges for the
+regional averages, a daily-average trend graph, nearest/cheapest station tiles, and a map.
+
+**Apply:** Settings → Dashboards → **+ Add Dashboard** → open it → **⋮ → Edit → ⋮ →
+Raw configuration editor** → paste the contents of [`dashboard.yaml`](dashboard.yaml) → Save.
+
+> Entity IDs assume the default config-entry name *Fuel Prices Île-de-France*
+> (`sensor.fuel_prices_ile_de_france_*`). Adjust if yours differ.
 
 ## Custom Lovelace card
 
@@ -125,28 +138,24 @@ The integration bundles a self-contained custom card (no build step) showing the
 SP95/SP98 regional averages plus the nearest and cheapest stations with distance,
 address and a click-through to Google Maps.
 
-It is served automatically at `/fuel_prices_idf/fuel-prices-idf-card.js`, and on
-**storage-mode** dashboards the resource is **registered for you** on setup. If you
-use **YAML-mode** Lovelace, add the resource manually:
-```yaml
-# configuration.yaml (or your lovelace: resources block)
-lovelace:
-  resources:
-    - url: /fuel_prices_idf/fuel-prices-idf-card.js
-      type: module
-```
+**Install the card:**
+1. Copy [`www/fuel-prices-idf-card.js`](www/fuel-prices-idf-card.js) into your HA
+   `config/www/` folder (so it is served at `/local/fuel-prices-idf-card.js`).
+2. Settings → Dashboards → ⋮ → **Resources** → **+ Add Resource**
+   → URL `/local/fuel-prices-idf-card.js`, type **JavaScript Module** → Create.
+3. Hard-refresh the browser (Ctrl+Shift+R).
 
 Then add the card:
 ```yaml
 type: custom:fuel-prices-idf-card
 # everything below is optional — these are the defaults:
 title: Fuel Prices — Île-de-France
-avg_sp95: sensor.average_sp95_ile_de_france
-avg_sp98: sensor.average_sp98_ile_de_france
-nearest_sp95: sensor.nearest_sp95
-nearest_sp98: sensor.nearest_sp98
-cheapest_sp95: sensor.cheapest_sp95_within_radius
-cheapest_sp98: sensor.cheapest_sp98_within_radius
+avg_sp95: sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france
+avg_sp98: sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france
+nearest_sp95: sensor.fuel_prices_ile_de_france_nearest_sp95
+nearest_sp98: sensor.fuel_prices_ile_de_france_nearest_sp98
+cheapest_sp95: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+cheapest_sp98: sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius
 ```
 The card is theme-aware (uses your HA theme variables) and appears in the card
 picker as **“Fuel Prices Île-de-France Card”**.

@@ -19,7 +19,6 @@ from .const import (
     DOMAIN,
 )
 from .coordinator import FuelPricesCoordinator
-from .frontend import async_register_frontend
 from .statistics_backfill import async_backfill_statistics
 
 PLATFORMS: list[Platform] = [Platform.SENSOR]
@@ -45,9 +44,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 
     _async_register_services(hass)
-
-    # Serve + register the custom Lovelace card (once).
-    await async_register_frontend(hass)
 
     # Auto-backfill the current year once per config entry (non-blocking).
     if not entry.data.get(_BACKFILL_DONE):

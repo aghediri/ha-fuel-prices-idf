@@ -3,30 +3,33 @@
  * A self-contained card (no build step) that renders the SP95/SP98 regional
  * averages plus the nearest and cheapest stations with distance + address.
  *
- * Register as a dashboard resource (JavaScript Module):
- *   /fuel_prices_idf/fuel-prices-idf-card.js
- * (served automatically by the integration — see README).
+ * Install:
+ *   1. Copy this file into your HA  config/www/  folder
+ *      (so it is served at  /local/fuel-prices-idf-card.js ).
+ *   2. Settings → Dashboards → ⋮ → Resources → + Add Resource
+ *      → URL  /local/fuel-prices-idf-card.js , type JavaScript Module.
+ *   3. Hard-refresh the browser (Ctrl+Shift+R).
  *
  * Minimal config:
  *   type: custom:fuel-prices-idf-card
  * Optional overrides (defaults shown):
  *   title: Fuel Prices — Île-de-France
- *   avg_sp95: sensor.average_sp95_ile_de_france
- *   avg_sp98: sensor.average_sp98_ile_de_france
- *   nearest_sp95: sensor.nearest_sp95
- *   nearest_sp98: sensor.nearest_sp98
- *   cheapest_sp95: sensor.cheapest_sp95_within_radius
- *   cheapest_sp98: sensor.cheapest_sp98_within_radius
+ *   avg_sp95: sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france
+ *   avg_sp98: sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france
+ *   nearest_sp95: sensor.fuel_prices_ile_de_france_nearest_sp95
+ *   nearest_sp98: sensor.fuel_prices_ile_de_france_nearest_sp98
+ *   cheapest_sp95: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
+ *   cheapest_sp98: sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius
  */
 
 const DEFAULTS = {
   title: "Fuel Prices — Île-de-France",
-  avg_sp95: "sensor.average_sp95_ile_de_france",
-  avg_sp98: "sensor.average_sp98_ile_de_france",
-  nearest_sp95: "sensor.nearest_sp95",
-  nearest_sp98: "sensor.nearest_sp98",
-  cheapest_sp95: "sensor.cheapest_sp95_within_radius",
-  cheapest_sp98: "sensor.cheapest_sp98_within_radius",
+  avg_sp95: "sensor.fuel_prices_ile_de_france_average_sp95_ile_de_france",
+  avg_sp98: "sensor.fuel_prices_ile_de_france_average_sp98_ile_de_france",
+  nearest_sp95: "sensor.fuel_prices_ile_de_france_nearest_sp95",
+  nearest_sp98: "sensor.fuel_prices_ile_de_france_nearest_sp98",
+  cheapest_sp95: "sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius",
+  cheapest_sp98: "sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius",
 };
 
 class FuelPricesIdfCard extends HTMLElement {
