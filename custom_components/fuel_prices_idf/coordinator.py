@@ -189,4 +189,25 @@ class FuelPricesCoordinator(DataUpdateCoordinator):
             else:
                 data[f"cheapest_{fuel}"] = None
 
+        # Full list of stations within the radius (any fuel) — for a markers map.
+        in_radius_all = [st for st in stations if st["distance_km"] <= self._radius_km]
+        in_radius_all.sort(key=lambda st: st["distance_km"])
+        data["stations_in_radius"] = [
+            {
+                "latitude": st["latitude"],
+                "longitude": st["longitude"],
+                "city": st["city"],
+                "address": st["address"],
+                "postal_code": st["postal_code"],
+                "distance_km": st["distance_km"],
+                "sp95": st.get("sp95"),
+                "sp98": st.get("sp98"),
+            }
+            for st in in_radius_all
+        ]
+        data["stations_in_radius_count"] = len(in_radius_all)
+        data["home_latitude"] = self._home_lat
+        data["home_longitude"] = self._home_lon
+        data["radius_km"] = self._radius_km
+
         return data

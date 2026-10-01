@@ -27,12 +27,27 @@
   },
   "entity": {
     "sensor": {
-      "avg_sp95": { "name": "Average SP95 (Île-de-France)" },
-      "avg_sp98": { "name": "Average SP98 (Île-de-France)" },
-      "nearest_sp95": { "name": "Nearest SP95" },
-      "nearest_sp98": { "name": "Nearest SP98" },
-      "cheapest_sp95": { "name": "Cheapest SP95 (within radius)" },
-      "cheapest_sp98": { "name": "Cheapest SP98 (within radius)" }
+      "avg_sp95": {
+        "name": "Average SP95 (Île-de-France)"
+      },
+      "avg_sp98": {
+        "name": "Average SP98 (Île-de-France)"
+      },
+      "nearest_sp95": {
+        "name": "Nearest SP95"
+      },
+      "nearest_sp98": {
+        "name": "Nearest SP98"
+      },
+      "cheapest_sp95": {
+        "name": "Cheapest SP95 (within radius)"
+      },
+      "cheapest_sp98": {
+        "name": "Cheapest SP98 (within radius)"
+      },
+      "stations_in_radius": {
+        "name": "Stations in radius"
+      }
     }
   }
 }

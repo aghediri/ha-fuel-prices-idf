@@ -23,6 +23,7 @@ This integration polls it every 30 minutes.
 | `sensor.fuel_prices_ile_de_france_nearest_sp98` | Price at the nearest station selling SP98 | €/L | *(same as above)* |
 | `sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius` | Lowest SP95 price within your radius | €/L | *(same as above)* |
 | `sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius` | Lowest SP98 price within your radius | €/L | *(same as above)* |
+| `sensor.fuel_prices_ile_de_france_stations_in_radius` | # of stations within your radius (any fuel) | count | `stations` (full list: lat/lon/city/address/sp95/sp98/distance), `home_latitude`, `home_longitude`, `radius_km` |
 
 Prices are in **euros per litre** with 3-decimal precision. Each station sensor carries
 `latitude`/`longitude` so you can drop it straight onto a `map` card.
@@ -161,6 +162,31 @@ The card is theme-aware (uses your HA theme variables) and appears in the card
 picker as **“Fuel Prices Île-de-France Card”**.
 
 ## Historical backfill
+
+## All-stations map card
+
+A second bundled card, [`www/fuel-stations-map-card.js`](www/fuel-stations-map-card.js),
+plots **every** station within your radius on a Leaflet map — colour-coded by price,
+with your home marked. Unlike the built-in `map` card (which only shows the
+nearest/cheapest sensor entities), this reads the full list from the
+`sensor.fuel_prices_ile_de_france_stations_in_radius` attribute, so stations that
+only sell SP98 (e.g. the Poissy *TotalEnergies / Relais Maladrerie*) also appear.
+
+**Install:** copy `www/fuel-stations-map-card.js` into HA `config/www/`, add it as a
+**JavaScript Module** resource (`/local/fuel-stations-map-card.js`), hard-refresh.
+
+```yaml
+type: custom:fuel-stations-map-card
+entity: sensor.fuel_prices_ile_de_france_stations_in_radius
+title: Toutes les stations dans le rayon
+fuel: sp95   # sp95 | sp98 — which price drives the colour scale
+# height: 420
+```
+
+> Note: the French open data does **not** publish station brand/name, so stations
+> are shown by **address + city + postal code** (never a brand label like
+> "TotalEnergies"). Click a marker to see its address and both prices.
+
 
 So the daily-average trend isn't empty on day one, the integration imports the
 **current year's daily SP95/SP98 averages** as Home Assistant *long-term statistics*,

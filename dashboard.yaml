@@ -98,6 +98,26 @@ cards:
         attribute: address
         name: Adresse
 
+  # --- Detail: nearest SP98 (e.g. the Poissy TotalEnergies / Maladrerie) ---
+  - type: entities
+    title: Détails — SP98 le plus proche
+    entities:
+      - entity: sensor.fuel_prices_ile_de_france_nearest_sp98
+        name: Prix SP98
+      - type: attribute
+        entity: sensor.fuel_prices_ile_de_france_nearest_sp98
+        attribute: distance_km
+        name: Distance
+        suffix: " km"
+      - type: attribute
+        entity: sensor.fuel_prices_ile_de_france_nearest_sp98
+        attribute: city
+        name: Ville
+      - type: attribute
+        entity: sensor.fuel_prices_ile_de_france_nearest_sp98
+        attribute: address
+        name: Adresse
+
   # --- Map of nearest & cheapest ---
   - type: map
     title: Carte des stations
@@ -107,3 +127,10 @@ cards:
       - entity: sensor.fuel_prices_ile_de_france_nearest_sp98
       - entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
       - entity: sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius
+
+  # --- ALL stations within radius (needs www/fuel-stations-map-card.js installed) ---
+  # Plots every station (incl. ones that only sell SP98, like the Poissy TotalEnergies).
+  - type: custom:fuel-stations-map-card
+    entity: sensor.fuel_prices_ile_de_france_stations_in_radius
+    title: Toutes les stations dans le rayon
+    fuel: sp95

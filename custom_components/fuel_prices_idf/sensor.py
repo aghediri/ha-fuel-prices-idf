@@ -130,9 +130,11 @@ async def async_setup_entry(
 ) -> None:
     """Set up the fuel price sensors."""
     coordinator: FuelPricesCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities(
+    entities: list[SensorEntity] = [
         FuelPriceSensor(coordinator, entry, desc) for desc in SENSORS
-    )
+    ]
+    entities.append(StationsInRadiusSensor(coordinator, entry))
+    async_add_entities(entities)
 
 
 class FuelPriceSensor(CoordinatorEntity[FuelPricesCoordinator], SensorEntity):
@@ -172,3 +174,46 @@ class FuelPriceSensor(CoordinatorEntity[FuelPricesCoordinator], SensorEntity):
         attrs = dict(self.entity_description.attrs_fn(self.coordinator.data))
         attrs["station_count"] = self.coordinator.data.get("station_count")
         return attrs
+
+
+class StationsInRadiusSensor(CoordinatorEntity[FuelPricesCoordinator], SensorEntity):
+    """Sensor whose state is the number of stations within the radius and whose
+    attributes carry the full list (lat/lon/price per station) for a markers map."""
+
+    _attr_has_entity_name = True
+    _attr_attribution = ATTRIBUTION
+    _attr_icon = "mdi:map-marker-multiple"
+    _attr_translation_key = "stations_in_radius"
+    _attr_name = "Stations in radius"
+
+    def __init__(
+        self,
+        coordinator: FuelPricesCoordinator,
+        entry: ConfigEntry,
+    ) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{entry.entry_id}_stations_in_radius"
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="Fuel Prices Île-de-France",
+            manufacturer="prix-carburants.gouv.fr",
+            model="Open Data v2",
+            entry_type="service",
+        )
+
+    @property
+    def native_value(self) -> int | None:
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("stations_in_radius_count")
+
+    @property
+    def extra_state_attributes(self) -> dict:
+        if not self.coordinator.data:
+            return {}
+        return {
+            "home_latitude": self.coordinator.data.get("home_latitude"),
+            "home_longitude": self.coordinator.data.get("home_longitude"),
+            "radius_km": self.coordinator.data.get("radius_km"),
+            "stations": self.coordinator.data.get("stations_in_radius", []),
+        }

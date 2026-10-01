@@ -27,12 +27,27 @@
   },
   "entity": {
     "sensor": {
-      "avg_sp95": { "name": "Prix moyen SP95 (Île-de-France)" },
-      "avg_sp98": { "name": "Prix moyen SP98 (Île-de-France)" },
-      "nearest_sp95": { "name": "SP95 le plus proche" },
-      "nearest_sp98": { "name": "SP98 le plus proche" },
-      "cheapest_sp95": { "name": "SP95 le moins cher (dans le rayon)" },
-      "cheapest_sp98": { "name": "SP98 le moins cher (dans le rayon)" }
+      "avg_sp95": {
+        "name": "Prix moyen SP95 (Île-de-France)"
+      },
+      "avg_sp98": {
+        "name": "Prix moyen SP98 (Île-de-France)"
+      },
+      "nearest_sp95": {
+        "name": "SP95 le plus proche"
+      },
+      "nearest_sp98": {
+        "name": "SP98 le plus proche"
+      },
+      "cheapest_sp95": {
+        "name": "SP95 le moins cher (dans le rayon)"
+      },
+      "cheapest_sp98": {
+        "name": "SP98 le moins cher (dans le rayon)"
+      },
+      "stations_in_radius": {
+        "name": "Stations dans le rayon"
+      }
     }
   }
 }
