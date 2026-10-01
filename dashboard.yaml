@@ -104,5 +104,6 @@ cards:
     default_zoom: 11
     entities:
       - entity: sensor.fuel_prices_ile_de_france_nearest_sp95
+      - entity: sensor.fuel_prices_ile_de_france_nearest_sp98
       - entity: sensor.fuel_prices_ile_de_france_cheapest_sp95_within_radius
       - entity: sensor.fuel_prices_ile_de_france_cheapest_sp98_within_radius
